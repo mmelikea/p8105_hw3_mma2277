@@ -131,7 +131,7 @@ hw4_data=
 
 ### 2) Using this dataset, do or answer the following (commenting on the results of each):
 
-### Q1: 
+#### Q1: 
 In 2002, which states were observed at 7 or more locations? What about in 2010?
 
 ```{r, message=FALSE}
@@ -143,7 +143,7 @@ hw4_data |>
 
 
 
-### Q2: 
+#### Q2: 
 Construct a dataset that is limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state. Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).
 
 ```{r, message=FALSE}
@@ -164,7 +164,7 @@ ggplot(excellent_data, aes(x=year, y=average_data_value, color=state, group=stat
 theme(legend.position = "right")
 ```
 
-### Q3: 
+#### Q3: 
 Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
 
 ```{r, message=FALSE}
@@ -266,5 +266,25 @@ ggplot(nhanes_comb, aes(x = age, y = total_activity, color = sex, group=sex)) +
        y="Total Activity")
 
 ```
+
+
+#### Creating new variable (24-hour activity) and plotting it to show 24 hour activity time courses for each education level
+Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences.
+
+
+```{r, message=FALSE}
+nhanes_comb <- nhanes_comb |>
+mutate(nhanes_comb, hr_activity= total_activity/1440)|>
+relocate( seqn, sex, age, bmi, education, total_activity, hr_activity, everything())
+
+
+ggplot(nhanes_comb, aes(x = hr_activity, fill = sex)) +
+  geom_density(alpha = .5) + 
+  facet_grid(~education) + 
+  viridis::scale_fill_viridis(discrete = TRUE) +
+  theme(legend.position = "bottom")
+```
+
+
 
 
