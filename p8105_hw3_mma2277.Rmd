@@ -239,3 +239,32 @@ nhanes_comb |>
 
 ```
 
+
+#### Plotting total activities against age
+Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each participant. Plot these total activities (y-axis) against age (x-axis); your plot should compare men to women and have separate panels for each education level. Include a trend line or a smooth to illustrate differences. Comment on your plot.
+
+```{r, message=FALSE}
+nhanes_comb <- nhanes_comb %>%
+  mutate(nhanes_comb, total_activity = rowSums(select(nhanes_comb,starts_with("min")))
+           )
+  relocate(nhanes_comb, seqn, sex, age, bmi, education, total_activity, everything())
+```
+
+```{r, message=FALSE}
+
+nhanes_comb$sex <- factor(nhanes_comb$sex, levels = c(1, 2), labels = c("Male", "Female"))
+nhanes_comb$education <- factor(nhanes_comb$education, levels = c(1, 2, 3), labels = c("Less than high school", "High school equivalent" , "More than high school"))
+
+ggplot(nhanes_comb, aes(x = age, y = total_activity, color = sex, group=sex)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_grid(~ education) +
+  theme(legend.position = "right")+
+  viridis::scale_fill_viridis(discrete = TRUE)+
+  labs(title = "Total Activity of Different Age Groups",
+       x="Age",
+       y="Total Activity")
+
+```
+
+
