@@ -215,5 +215,27 @@ nhanes_comb=
 ```
 
 
+#### Producing Reader-friendly table
+Produce a reader-friendly table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.
 
+```{r, message=FALSE}
+nhanes_comb |>
+  select(education,sex) |>
+  mutate(education = case_when(
+    education == 1 ~ "Less than high school",
+    education == 2 ~ "High school equivalent",
+    education == 3 ~ "More than high school", 
+    TRUE ~ as.factor(education)  
+    )) |> 
+  mutate(sex=case_match(sex,
+     1 ~ "Male",
+     2 ~ "Female")
+     ) |>
+  group_by(education, sex) |>
+  summarize(n_obs = n())|> 
+  knitr::kable(digits = 3)
+  
+
+
+```
 
