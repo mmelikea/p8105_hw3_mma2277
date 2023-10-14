@@ -233,7 +233,7 @@ nhanes_comb=
 ```
 
 
-#### Producing Reader-friendly table
+#### Producing Reader-friendly table and visualization
 Produce a reader-friendly table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.
 
 ```{r, message=FALSE}
@@ -252,10 +252,28 @@ nhanes_comb |>
   group_by(education, sex) |>
   summarize(n_obs = n())|> 
   knitr::kable(digits = 3)
-  
-
 
 ```
+
+```{r}
+nhanes_comb$sex <- factor(nhanes_comb$sex, levels = c(1, 2), labels = c("Male", "Female"))
+nhanes_comb$education <- factor(nhanes_comb$education, levels = c(1, 2, 3), labels = c("Less than high school", "High school equivalent" , "More than high school"))
+
+ggplot(nhanes_comb, aes(x=age , y=education, fill=education))+
+  geom_density_ridges(scale=.85)+
+  facet_grid(~ sex)
+  labs(title = "Age distribution by education and gender",
+    x = "Age",
+    fill = "Sex",)
+
+```
+Explanations:
+
+Less than high school: The distribution for males are bimodal while distribution for females are unimodal. Females are more old than males for less than high school group. While males peaked in both between 25-35 and around 60-75, females peaked only around 60-75. This suggest that attending less than high school is more common in most of the age groups in males while for females only older ages have less than high school education.
+
+High school equivalent, the distribution for males are wider than females. While males have bimodal distribution, females have unimodal distribution. The ages varied more for males than females. High school equivalent group for females mostly include people who are older than 50 while for males, the ages is almost equally distributed.
+
+More than high school: For both males and females, the distribution is right skewed and almost unimodal. Distribution for males and females are similar which suggest that more than high school education is more common for both females and males. Also, peoplw who attend more than high school is younger. Highest point for the males and females are between 25 and around 35. 
 
 
 #### Plotting total activities against age
