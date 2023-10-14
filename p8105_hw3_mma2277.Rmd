@@ -181,3 +181,39 @@ hw4_data_pan <- hw4_data |>
        y="Density")
 ```
 
+## Problem 3
+
+Load, tidy, merge, and otherwise organize the data sets. Your final dataset should include all originally observed variables; exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes (i.e. not numeric, and using factors with the ordering of tables and plots in mind).
+
+####Importing Nhanes Demographic data
+
+```{r, message=FALSE}
+nhanes_dem = 
+  read_csv(
+    "/Users/muazzezaksoy/Desktop/p8105_hw3_mma2277/data/nhanes_covar (1).csv", 
+    skip = 4, na = ".") |> 
+  janitor::clean_names() |>
+  drop_na(age, sex, education) |>
+  filter(age >= 21) |>
+  mutate(education=fct_relevel(education,c("Less than high school" , "High school equivalent" , "More than high school"))) 
+
+```
+
+
+####Importing Nhanes Accelerometer data
+```{r, message=FALSE}
+nhanes_accl =
+  read_csv(
+    "/Users/muazzezaksoy/Desktop/p8105_hw3_mma2277/data/nhanes_accel (1).csv") |>
+  janitor::clean_names()
+```
+
+####Combining two datasets
+```{r, message=FALSE}
+nhanes_comb=
+  left_join(nhanes_dem,nhanes_accl,by="seqn")
+```
+
+
+
+
