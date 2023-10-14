@@ -185,6 +185,17 @@ hw4_data_pan <- hw4_data |>
        y="Density")
 ```
 
+Explanations:
+
+In 2006, among the locations in NY state, the distribution of data value for responses shows that overall health that was reported were really different for each responses. The density plot for 2006 is right skewed which shows that data values are mostly concentrated on the left. The spread of responses excellent, very good, good are wide which shows high variability, while the spread of poor and fair responses are narrow which mean there is low variability in data values for those responses. 
+
+For 2010,among the locations in NY state, the the distribution of data value for responses shows that overall health that was reported were more similar for each responses. The density plot for 2010 is right skewed which shows that data values are mostly concentrated on the left. The spread of good, very good, excellent, and fair responses are wide which shows high varibility. The category of poor response shows low variability. 
+
+When we compare density plot of 2006 to 2010, we can see that data values for the responses become more wider which means that from 2006 to 2010 the variability increased between the responses. 
+
+
+
+
 ########################################################################################
 
 
