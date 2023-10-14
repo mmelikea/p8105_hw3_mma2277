@@ -135,11 +135,12 @@ hw4_data=
 In 2002, which states were observed at 7 or more locations? What about in 2010?
 
 ```{r, message=FALSE}
-hw4_data |>
+hw4_data_p2 <- hw4_data |> 
   group_by(state, year) |>
   summarize(n_locations = n()) |> 
   filter(n_locations >= 7 & year== 2002 | n_locations >= 7 & year== 2010)
 ```
+
 
 
 
@@ -153,7 +154,6 @@ excellent_data <- hw4_data |>
   summarize(average_data_value = mean(data_value, na.rm = TRUE))
 
 ggplot(excellent_data, aes(x=year, y=average_data_value, color=state, group=state))+
-  geom_point()+
   geom_line()+
     labs(
     title = "Average value over time within a state from 2002 to 2010",
@@ -163,6 +163,10 @@ ggplot(excellent_data, aes(x=year, y=average_data_value, color=state, group=stat
        )+
 theme(legend.position = "right")
 ```
+
+Explanations:
+Average value over time within a state from 2002 to 2010 decreased for all the states. Groups of lines move together and share similar patterns. Most of the data clustured aroung average data value of 20 to almost 30. Between 2004 to 2006, there is decline in average data values in most of the states. Low WY seems to be an outlier. Overall, states that are yellow seems (WY,WV, WI, WA) to be having low average data value over time compared to other states. 
+
 
 #### Q3: 
 Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
@@ -180,6 +184,9 @@ hw4_data_pan <- hw4_data |>
        x="Data Value",
        y="Density")
 ```
+
+########################################################################################
+
 
 ## Problem 3
 
