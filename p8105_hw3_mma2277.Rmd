@@ -220,11 +220,15 @@ Load, tidy, merge, and otherwise organize the data sets. Your final dataset shou
 ```{r, message=FALSE}
 nhanes_dem = 
   read_csv(
-    "/Users/muazzezaksoy/Desktop/p8105_hw3_mma2277/data/nhanes_covar (1).csv", 
-    skip = 4, na = ".") |> 
+    "nhanes_covar (1).csv", 
+    skip = 4, na = "NA") |> 
   janitor::clean_names() |>
-  drop_na(age, sex, education) |>
-  filter(age >= 21) 
+  drop_na() |>
+  filter(age >= 21) |>
+  mutate(
+    education = factor(education, levels = c(1, 2, 3), labels = c("Less than high school", "High school equivalent", "More than high school"))) |>
+  mutate(sex = ifelse(sex == 1, "Male", "Female")
+  )
 
 ```
 
@@ -233,7 +237,7 @@ nhanes_dem =
 ```{r, message=FALSE}
 nhanes_accl =
   read_csv(
-    "/Users/muazzezaksoy/Desktop/p8105_hw3_mma2277/data/nhanes_accel (1).csv") |>
+    "nhanes_accel (1).csv") |>
   janitor::clean_names()
 ```
 
@@ -248,6 +252,7 @@ nhanes_comb=
 Produce a reader-friendly table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.
 
 ```{r, message=FALSE}
+#Reader-friendly table code
 nhanes_comb |>
   select(education,sex) |>
   mutate(education = case_when(
@@ -256,10 +261,6 @@ nhanes_comb |>
     education == 3 ~ "More than high school", 
     TRUE ~ as.factor(education)  
     )) |> 
-  mutate(sex=case_match(sex,
-     1 ~ "Male",
-     2 ~ "Female")
-     ) |>
   group_by(education, sex) |>
   summarize(n_obs = n())|> 
   knitr::kable(digits = 3)
@@ -268,16 +269,13 @@ nhanes_comb |>
 
 Explanations:
 
-From 250 participants in the NHANES study, only 231 were eligible for analysis due to missing values. The education level with highest number of males and females is more than high school. More than 1/3 of the participants attended more than high school. The lowest number of people were in the group with less than high school. In less than high school group, females and males have almost equal numbers. In high school equivalent group, females have the lowest number while males had high numbers. 
+From 250 participants in the NHANES study, only 228 were eligible for analysis due to missing values. The education level with highest number of males and females is more than high school. More than 1/3 of the participants attended more than high school. The lowest number of people were in the group with less than high school. In less than high school group, females and males have almost equal numbers. In high school equivalent group, females have the lowest number while males had high numbers. 
 
 #### Visualization
 ```{r}
-nhanes_comb$sex <- factor(nhanes_comb$sex, levels = c(1, 2), labels = c("Male", "Female"))
-nhanes_comb$education <- factor(nhanes_comb$education, levels = c(1, 2, 3), labels = c("Less than high school", "High school equivalent" , "More than high school"))
-
-ggplot(nhanes_comb, aes(x=age , y=education, fill=education))+
-  geom_density_ridges(scale=.85)+
-  facet_grid(~ sex)
+#Plot for visualization
+ggplot(nhanes_comb, aes(x=age , y=education, fill=sex))+
+  geom_density_ridges(scale=.85, alpha= .5)+
   labs(title = "Age distribution by education and gender",
     x = "Age",
     fill = "Sex",)
@@ -298,18 +296,15 @@ Traditional analyses of accelerometer data focus on the total activity over the 
 
 ```{r, message=FALSE}
 nhanes_comb <- nhanes_comb %>%
-  mutate(nhanes_comb, total_activity = rowSums(select(nhanes_comb,starts_with("min")))
-           )
-  relocate(nhanes_comb, seqn, sex, age, bmi, education, total_activity, everything())
+  mutate(nhanes_comb, total_activity =  rowSums(select(nhanes_comb,starts_with("min"))) 
+           ) |> # summing all minutes
+  relocate( seqn, sex, age, bmi, education, total_activity, everything())
 ```
 
 ```{r, message=FALSE}
 
-nhanes_comb$sex <- factor(nhanes_comb$sex, levels = c(1, 2), labels = c("Male", "Female"))
-nhanes_comb$education <- factor(nhanes_comb$education, levels = c(1, 2, 3), labels = c("Less than high school", "High school equivalent" , "More than high school"))
-
 ggplot(nhanes_comb, aes(x = age, y = total_activity, color = sex, group=sex)) +
-  geom_point() +
+  geom_point(alpha=.5) +
   geom_smooth(se = FALSE) +
   facet_grid(~ education) +
   theme(legend.position = "right")+
@@ -320,14 +315,22 @@ ggplot(nhanes_comb, aes(x = age, y = total_activity, color = sex, group=sex)) +
 
 ```
 
+Explanations: 
+
+Panel for Less than high school: Total activity for both males and females decreases as people age. Across all ages, total activity of males and females are close. For males, total activity increased between 60 and 70. There was a huge decrease in total activity for both males and females as age increased. 
+
+Panel for High school equivalent : Total activity for both males and females peaked in 30-50 years of age but in general, females' total activity levels were higher than males. 
+
+Panel for More than high school : Total activity for both males and females did not change much from younger age to older age. Total activity for females are higher than males. While total activity peaked 40 to 50 in males, from 50 to 60 females total activity levels increased.
+
 
 #### Creating new variable (24-hour activity) and plotting it to show 24 hour activity time courses for each education level
 Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences.
 
 
 ```{r, message=FALSE}
-nhanes_comb <- nhanes_comb |>
-mutate(nhanes_comb, hr_activity= total_activity/1440)|>
+nhanes_comb <- nhanes_comb |> 
+mutate(nhanes_comb, hr_activity= total_activity/60)|> 
 relocate( seqn, sex, age, bmi, education, total_activity, hr_activity, everything())
 
 
