@@ -119,7 +119,7 @@ data("brfss_smart2010")
 ##### Including only responses from Excellent to Poor
 
 ```{r, message=FALSE}
-hw4_data=
+brfss_data=
   brfss_smart2010 |>
   janitor::clean_names()|>
   filter(topic=="Overall Health", response== "Excellent" | response == "Very good"| response =="Good" | response =="Fair" | response =="Poor") |>
@@ -135,20 +135,32 @@ hw4_data=
 In 2002, which states were observed at 7 or more locations? What about in 2010?
 
 ```{r, message=FALSE}
-hw4_data_p2 <- hw4_data |> 
+brfss_data_2002 <- brfss_data |> 
   group_by(state, year) |>
   summarize(n_locations = n()) |> 
-  filter(n_locations >= 7 & year== 2002 | n_locations >= 7 & year== 2010)
+  filter(n_locations >= 7 & year== 2002)
+
+brfss_data_2010 <- brfss_data |> 
+  group_by(state, year) |>
+  summarize(n_locations = n()) |> 
+  filter(n_locations >= 7 & year== 2010)
+
+brfss_state_2002=
+  select(brfss_data_2002, state)
+
+brfss_state_2010=
+  select(brfss_data_2010, state)
+
 ```
 
-
+This dataset contains `r nrow(brfss_data_2002)` states that were observed in 7 or more locations in 2002. For 2010, there are `r nrow(brfss_data_2010)` states that observed in 7 or more location. 
 
 
 #### Q2: 
 Construct a dataset that is limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state. Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).
 
 ```{r, message=FALSE}
-excellent_data <- hw4_data |>
+excellent_data <- brfss_data |>
   filter(response=="Excellent")|>
   group_by(year, state)|>
   summarize(average_data_value = mean(data_value, na.rm = TRUE))
@@ -172,11 +184,11 @@ Average value over time within a state from 2002 to 2010 decreased for all the s
 Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
 
 ```{r, message=FALSE}
-hw4_data_pan <- hw4_data |>
+brfss_data_pan <- brfss_data |>
   filter(state=="NY" & year %in% c(2006,2010)) 
 
  
-  ggplot(hw4_data_pan, aes(x = data_value, fill = response)) +
+  ggplot(brfss_data_pan, aes(x = data_value, fill = response)) +
   geom_density(alpha = .5) + 
   facet_grid(~ year) + 
   viridis::scale_fill_viridis(discrete = TRUE)+
@@ -212,8 +224,7 @@ nhanes_dem =
     skip = 4, na = ".") |> 
   janitor::clean_names() |>
   drop_na(age, sex, education) |>
-  filter(age >= 21) |>
-  mutate(education=fct_relevel(education,c("Less than high school" , "High school equivalent" , "More than high school"))) 
+  filter(age >= 21) 
 
 ```
 
@@ -233,7 +244,7 @@ nhanes_comb=
 ```
 
 
-#### Producing Reader-friendly table and visualization
+#### Producing Reader-friendly table 
 Produce a reader-friendly table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.
 
 ```{r, message=FALSE}
@@ -255,6 +266,11 @@ nhanes_comb |>
 
 ```
 
+Explanations:
+
+From 250 participants in the NHANES study, only 231 were eligible for analysis due to missing values. The education level with highest number of males and females is more than high school. More than 1/3 of the participants attended more than high school. The lowest number of people were in the group with less than high school. In less than high school group, females and males have almost equal numbers. In high school equivalent group, females have the lowest number while males had high numbers. 
+
+#### Visualization
 ```{r}
 nhanes_comb$sex <- factor(nhanes_comb$sex, levels = c(1, 2), labels = c("Male", "Female"))
 nhanes_comb$education <- factor(nhanes_comb$education, levels = c(1, 2, 3), labels = c("Less than high school", "High school equivalent" , "More than high school"))
@@ -267,6 +283,7 @@ ggplot(nhanes_comb, aes(x=age , y=education, fill=education))+
     fill = "Sex",)
 
 ```
+
 Explanations:
 
 Less than high school: The distribution for males are bimodal while distribution for females are unimodal. Females are more old than males for less than high school group. While males peaked in both between 25-35 and around 60-75, females peaked only around 60-75. This suggest that attending less than high school is more common in most of the age groups in males while for females only older ages have less than high school education.
